@@ -1,0 +1,70 @@
+name: Build & Deploy Gamma
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REPOSITORY_GAMMA: gamma
+  ECR_REPOSITORY_MLFLOW: gamma-mlflow
+  ECS_CLUSTER: gamma-cluster
+  ECS_SERVICE_GAMMA: gamma-service
+  ECS_SERVICE_MLFLOW: mlflow-service
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and push Gamma image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f docker/Dockerfile -t $ECR_REGISTRY/$ECR_REPOSITORY_GAMMA:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_GAMMA:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_GAMMA:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_GAMMA:latest
+
+      - name: Build and push MLflow image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -f docker/Dockerfile.mlflow -t $ECR_REGISTRY/$ECR_REPOSITORY_MLFLOW:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY_MLFLOW:latest .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_MLFLOW:$IMAGE_TAG
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY_MLFLOW:latest
+
+      - name: Deploy Gamma to ECS
+        if: github.ref == 'refs/heads/main'
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE_GAMMA \
+            --force-new-deployment
+
+      - name: Deploy MLflow to ECS
+        if: github.ref == 'refs/heads/main'
+        run: |
+          aws ecs update-service \
+            --cluster $ECS_CLUSTER \
+            --service $ECS_SERVICE_MLFLOW \
+            --force-new-deployment

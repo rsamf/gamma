@@ -1,0 +1,19 @@
+FROM python:3.12-slim
+WORKDIR /app
+
+RUN pip install --no-cache-dir \
+    mlflow==2.19.0 \
+    psycopg2-binary==2.9.10 \
+    boto3==1.36.4
+
+EXPOSE 5000
+
+# MLflow tracking server
+# --backend-store-uri: Postgres (Supabase) with mlflow schema
+# --default-artifact-root: S3 bucket for artifacts
+# These are set via environment variables at runtime
+CMD mlflow server \
+    --host 0.0.0.0 \
+    --port 5000 \
+    --backend-store-uri "${MLFLOW_BACKEND_STORE_URI}" \
+    --default-artifact-root "${MLFLOW_ARTIFACT_ROOT}"
