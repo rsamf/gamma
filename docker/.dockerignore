@@ -1,0 +1,11 @@
+**/__pycache__
+**/.git
+**/node_modules
+**/.env
+**/venv
+**/.venv
+*.pyc
+.DS_Store
+terraform/
+.github/
+PLAN.md
