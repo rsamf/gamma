@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import type { Project } from "../types";
-import { listProjects } from "../services/api";
+import type { Project } from "@/lib/types";
+import { listProjects } from "@/lib/api";
 
 export function useProjects(ownerId?: string) {
   const [projects, setProjects] = useState<Project[]>([]);

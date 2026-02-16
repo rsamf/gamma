@@ -4,7 +4,7 @@ Unified ML development platform built on the GAMMA stack (Git, AWS, MLFlow, Mujo
 
 ## Architecture
 
-- **Frontend**: React + TypeScript (Vite)
+- **Frontend**: Next.js + TypeScript + shadcn/ui
 - **Backend**: FastAPI (Python)
 - **Auth**: Supabase Auth (GitHub OAuth)
 - **Database**: Supabase Postgres
@@ -25,13 +25,13 @@ gamma/
 │   ├── models/       # Pydantic models
 │   ├── routers/      # API route handlers
 │   └── services/     # Business logic (GitHub, MLflow, S3, Agent)
-├── frontend/         # React + TypeScript application
+├── frontend/         # Next.js + TypeScript application
 │   └── src/
-│       ├── pages/    # Dashboard, Project, JobDetail, Experiments, Artifacts, Agent
-│       ├── components/ # MetricChart, JobTable, DiffViewer, ArtifactList, ChatMessage
+│       ├── app/      # Next.js App Router pages
+│       ├── components/ # UI components with shadcn/ui styling
 │       ├── hooks/    # useAuth, useProjects, useJobs
-│       ├── services/ # API client, Supabase client
-│       └── types/    # TypeScript type definitions
+│       ├── lib/      # API client, Supabase client, utilities, types
+│       └── components/ui/ # shadcn/ui components
 ├── docker/           # Dockerfiles for Gamma and MLflow
 ├── terraform/        # IaC (VPC, ECS, S3, ECR, IAM)
 ├── db/               # SQL migrations
@@ -40,19 +40,34 @@ gamma/
 
 ## Development Setup
 
-1. Copy `.env.example` to `.env` and fill in values
+1. Set up environment variables:
+   ```bash
+   # Backend
+   cd backend
+   cp .env.example .env
+   # Edit .env with your values
+
+   # Frontend
+   cd frontend
+   cp .env.local.example .env.local
+   # Edit .env.local with your Supabase credentials
+   ```
+
 2. Start the backend:
    ```bash
    cd backend
    pip install -r requirements.txt
    uvicorn backend.main:app --reload
    ```
+
 3. Start the frontend:
    ```bash
    cd frontend
    npm install
    npm run dev
    ```
+
+   The frontend will be available at [http://localhost:3000](http://localhost:3000)
 
 ## MMP Git Flow
 

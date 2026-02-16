@@ -1,6 +1,8 @@
+"use client";
+
 import { useEffect, useState } from "react";
-import type { TrainingJob } from "../types";
-import { listJobs } from "../services/api";
+import type { TrainingJob } from "@/lib/types";
+import { listJobs } from "@/lib/api";
 
 export function useJobs(projectId: string) {
   const [jobs, setJobs] = useState<TrainingJob[]>([]);

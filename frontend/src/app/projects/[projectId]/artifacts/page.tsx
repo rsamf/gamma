@@ -1,11 +1,17 @@
-import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-import { listArtifacts, getDownloadUrl } from "../services/api";
-import ArtifactList from "../components/ArtifactList";
-import type { S3Artifact } from "../types";
+"use client";
 
-function Artifacts() {
-  const { projectId } = useParams<{ projectId: string }>();
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { useParams } from "next/navigation";
+import { listArtifacts, getDownloadUrl } from "@/lib/api";
+import { ArtifactList } from "@/components/artifact-list";
+import type { S3Artifact } from "@/lib/types";
+import { Input } from "@/components/ui/input";
+import { AuthProvider } from "@/components/providers";
+
+function ArtifactsContent() {
+  const params = useParams();
+  const projectId = params.projectId as string;
   const [artifacts, setArtifacts] = useState<S3Artifact[]>([]);
   const [loading, setLoading] = useState(true);
   const [prefix, setPrefix] = useState("");
@@ -27,22 +33,22 @@ function Artifacts() {
 
   return (
     <div>
-      <Link to={`/projects/${projectId}`} style={styles.backLink}>
+      <Link href={`/projects/${projectId}`} className="text-sm text-primary hover:underline inline-block mb-3">
         &larr; Back to project
       </Link>
-      <h2 style={styles.title}>Artifacts & Checkpoints</h2>
+      <h2 className="text-3xl font-bold mb-5">Artifacts & Checkpoints</h2>
 
-      <div style={styles.controls}>
-        <input
-          style={styles.input}
+      <div className="mb-4">
+        <Input
           placeholder="Filter by prefix..."
           value={prefix}
           onChange={(e) => setPrefix(e.target.value)}
+          className="max-w-sm"
         />
       </div>
 
       {loading ? (
-        <p>Loading artifacts...</p>
+        <p className="text-muted-foreground">Loading artifacts...</p>
       ) : (
         <ArtifactList artifacts={artifacts} onDownload={handleDownload} />
       )}
@@ -50,11 +56,10 @@ function Artifacts() {
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  backLink: { fontSize: 14, color: "#0066ff", textDecoration: "none" },
-  title: { fontSize: 24, margin: "12px 0 20px" },
-  controls: { marginBottom: 16 },
-  input: { padding: "8px 12px", fontSize: 14, border: "1px solid #ddd", borderRadius: 6, width: 300 },
-};
-
-export default Artifacts;
+export default function Artifacts() {
+  return (
+    <AuthProvider>
+      <ArtifactsContent />
+    </AuthProvider>
+  );
+}

@@ -1,12 +1,20 @@
-import { useEffect, useState, useRef } from "react";
-import { Link, useParams, useSearchParams } from "react-router-dom";
-import { streamAgentChat, listConversations, getConversationMessages } from "../services/api";
-import ChatMessage from "../components/ChatMessage";
-import type { AgentConversation, AgentMessage } from "../types";
+"use client";
 
-function Agent() {
-  const { projectId } = useParams<{ projectId: string }>();
-  const [searchParams] = useSearchParams();
+import { useEffect, useState, useRef } from "react";
+import Link from "next/link";
+import { useParams, useSearchParams } from "next/navigation";
+import { streamAgentChat, listConversations, getConversationMessages } from "@/lib/api";
+import { ChatMessage } from "@/components/chat-message";
+import type { AgentConversation, AgentMessage } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
+import { AuthProvider } from "@/components/providers";
+
+function AgentContent() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const projectId = params.projectId as string;
   const jobId = searchParams.get("jobId") ?? undefined;
 
   const [conversations, setConversations] = useState<AgentConversation[]>([]);
@@ -59,38 +67,38 @@ function Agent() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.sidebar}>
-        <Link to={`/projects/${projectId}`} style={styles.backLink}>
+    <div className="flex h-[calc(100vh-120px)] gap-0 -mx-6 -mb-6">
+      <div className="w-64 border-r bg-card p-4 overflow-y-auto flex flex-col gap-2">
+        <Link href={`/projects/${projectId}`} className="text-sm text-primary hover:underline mb-2">
           &larr; Project
         </Link>
-        <h3 style={styles.sidebarTitle}>Conversations</h3>
-        <button
-          style={styles.newBtn}
+        <h3 className="text-base font-semibold mb-1">Conversations</h3>
+        <Button
+          variant="outline"
+          size="sm"
           onClick={() => {
             setConversationId(undefined);
             setMessages([]);
           }}
         >
           + New Chat
-        </button>
+        </Button>
         {conversations.map((c) => (
           <button
             key={c.id}
-            style={{
-              ...styles.convItem,
-              background: c.id === conversationId ? "#e8e8ff" : "#fff",
-            }}
+            className={`p-3 text-sm border rounded-md cursor-pointer text-left flex justify-between items-center ${
+              c.id === conversationId ? "bg-accent" : "bg-card"
+            }`}
             onClick={() => setConversationId(c.id)}
           >
             {new Date(c.created_at).toLocaleDateString()}
-            {c.training_job_id && <span style={styles.jobTag}>job</span>}
+            {c.training_job_id && <span className="text-xs bg-accent px-2 py-0.5 rounded">job</span>}
           </button>
         ))}
       </div>
 
-      <div style={styles.chatArea}>
-        <div style={styles.messages}>
+      <div className="flex-1 flex flex-col">
+        <div className="flex-1 overflow-y-auto p-6">
           {messages.map((m) => (
             <ChatMessage key={m.id} role={m.role} content={m.content} />
           ))}
@@ -100,37 +108,31 @@ function Agent() {
           <div ref={messagesEndRef} />
         </div>
 
-        <div style={styles.inputArea}>
-          <input
-            style={styles.chatInput}
+        <div className="flex gap-2 p-4 border-t bg-card">
+          <Input
             placeholder="Ask about your code, experiments, or metrics..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleSend()}
             disabled={streaming}
           />
-          <button style={styles.sendBtn} onClick={handleSend} disabled={streaming}>
+          <Button
+            onClick={handleSend}
+            disabled={streaming}
+            className="bg-violet-600 hover:bg-violet-700"
+          >
             Send
-          </button>
+          </Button>
         </div>
       </div>
     </div>
   );
 }
 
-const styles: Record<string, React.CSSProperties> = {
-  container: { display: "flex", height: "calc(100vh - 80px)", gap: 0 },
-  sidebar: { width: 260, borderRight: "1px solid #e0e0e0", padding: 16, background: "#fff", overflowY: "auto", display: "flex", flexDirection: "column", gap: 8 },
-  backLink: { fontSize: 14, color: "#0066ff", textDecoration: "none" },
-  sidebarTitle: { fontSize: 16, marginTop: 8 },
-  newBtn: { padding: "8px 12px", fontSize: 13, background: "#f5f5f5", border: "1px solid #ddd", borderRadius: 6, cursor: "pointer", textAlign: "left" as const },
-  convItem: { padding: "8px 12px", fontSize: 13, border: "1px solid #eee", borderRadius: 6, cursor: "pointer", textAlign: "left" as const, display: "flex", justifyContent: "space-between", alignItems: "center" },
-  jobTag: { fontSize: 10, background: "#e8e8ff", padding: "2px 6px", borderRadius: 4 },
-  chatArea: { flex: 1, display: "flex", flexDirection: "column" },
-  messages: { flex: 1, overflowY: "auto", padding: 24 },
-  inputArea: { display: "flex", gap: 8, padding: 16, borderTop: "1px solid #e0e0e0", background: "#fff" },
-  chatInput: { flex: 1, padding: "10px 14px", fontSize: 14, border: "1px solid #ddd", borderRadius: 8 },
-  sendBtn: { padding: "10px 20px", fontSize: 14, background: "#7c3aed", color: "#fff", border: "none", borderRadius: 8, cursor: "pointer" },
-};
-
-export default Agent;
+export default function Agent() {
+  return (
+    <AuthProvider>
+      <AgentContent />
+    </AuthProvider>
+  );
+}

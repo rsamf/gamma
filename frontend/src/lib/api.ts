@@ -8,7 +8,7 @@ import type {
   S3Artifact,
   MLflowRun,
   MetricHistory,
-} from "../types";
+} from "./types";
 
 const API_BASE = "/api";
 
