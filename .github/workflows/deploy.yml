@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   ECR_REPOSITORY_GAMMA: gamma
   ECR_REPOSITORY_MLFLOW: gamma-mlflow
   ECS_CLUSTER: gamma-cluster
