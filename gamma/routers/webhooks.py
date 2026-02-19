@@ -2,8 +2,8 @@ import re
 
 from fastapi import APIRouter, Header, HTTPException, Request
 
-from backend.db import get_supabase_admin_client
-from backend.services.github_service import GitHubService
+from gamma.db import get_supabase_admin_client
+from gamma.services.github_service import GitHubService
 
 router = APIRouter(prefix="/webhooks", tags=["webhooks"])
 

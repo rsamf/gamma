@@ -103,3 +103,13 @@ terraform apply -var-file=environments/dev.tfvars
 | POST | `/api/agent/summary/:projectId/:sha` | Generate commit summary |
 | POST | `/api/agent/chat/:projectId` | Agent chat (SSE) |
 | POST | `/api/webhooks/github` | GitHub webhook handler |
+
+## Testing
+
+Available tests can be executed. Examples:
+
+```
+uv run pytest tests/ -m "not integration"  # unit tests only
+uv run pytest tests/ -m integration         # integration tests only
+uv run pytest tests/                        # everything
+```

@@ -1,4 +1,4 @@
-from .projects import Project, ProjectCreate, ProjectUpdate
+from .projects import Project, ProjectCreate, ProjectCreateRequest, ProjectUpdate
 from .jobs import TrainingJob, TrainingJobCreate, TrainingJobUpdate, JobStatus
 from .agent import (
     AgentConversation,
@@ -12,6 +12,7 @@ from .users import Profile
 __all__ = [
     "Project",
     "ProjectCreate",
+    "ProjectCreateRequest",
     "ProjectUpdate",
     "TrainingJob",
     "TrainingJobCreate",

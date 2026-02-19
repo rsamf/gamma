@@ -4,14 +4,14 @@ from uuid import UUID
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 
-from backend.db import get_supabase_admin_client
-from backend.models import (
+from gamma.db import get_supabase_admin_client
+from gamma.models import (
     AgentChatRequest,
     AgentConversation,
     AgentMessage,
     CommitSummary,
 )
-from backend.services.agent_service import AgentService
+from gamma.services.agent_service import AgentService
 
 router = APIRouter(prefix="/agent", tags=["agent"])
 

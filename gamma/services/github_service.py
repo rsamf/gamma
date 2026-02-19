@@ -1,11 +1,12 @@
 import hashlib
 import hmac
 import time
+from pathlib import Path
 
 import httpx
 import jwt
 
-from backend.config import get_settings
+from gamma.config import get_settings
 
 
 class GitHubService:
@@ -24,9 +25,14 @@ class GitHubService:
             "exp": now + (10 * 60),
             "iss": self.settings.github_app_id,
         }
-        return jwt.encode(
-            payload, self.settings.github_app_private_key, algorithm="RS256"
-        )
+        raw = self.settings.github_app_private_key
+        p = Path(raw).expanduser()
+        if p.is_file():
+            key = p.read_text()
+        else:
+            # Env vars may store literal \n; convert to real newlines for PEM parsing
+            key = raw.replace("\\n", "\n")
+        return jwt.encode(payload, key, algorithm="RS256")
 
     async def _get_installation_token(self, installation_id: int) -> str:
         """Get an installation access token for a specific GitHub App installation."""
@@ -41,6 +47,20 @@ class GitHubService:
             )
             resp.raise_for_status()
             return resp.json()["token"]
+
+    async def get_repo_installation_id(self, owner: str, repo: str) -> int:
+        """Get the GitHub App installation ID for a specific repo."""
+        app_jwt = self._generate_jwt()
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(
+                f"{self.BASE_URL}/repos/{owner}/{repo}/installation",
+                headers={
+                    "Authorization": f"Bearer {app_jwt}",
+                    "Accept": "application/vnd.github+json",
+                },
+            )
+            resp.raise_for_status()
+            return resp.json()["id"]
 
     async def get_commit_diff(
         self, installation_id: int, repo_full_name: str, commit_sha: str

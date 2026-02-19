@@ -128,6 +128,27 @@ CREATE POLICY summaries_insert ON commit_summaries FOR INSERT WITH CHECK (
     EXISTS (SELECT 1 FROM projects WHERE id = project_id AND owner_id = auth.uid())
 );
 
+-- Auto-create a profile row whenever a new user signs up via Supabase Auth.
+-- Pulls github_username and avatar_url from the OAuth user_metadata.
+-- Must run as SECURITY DEFINER so it can insert into public.profiles.
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+    INSERT INTO public.profiles (id, github_username, avatar_url)
+    VALUES (
+        NEW.id,
+        COALESCE(NEW.raw_user_meta_data->>'user_name', ''),
+        NEW.raw_user_meta_data->>'avatar_url'
+    )
+    ON CONFLICT (id) DO NOTHING;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE OR REPLACE TRIGGER on_auth_user_created
+    AFTER INSERT ON auth.users
+    FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
 -- Trigger to auto-update updated_at on projects
 CREATE OR REPLACE FUNCTION update_updated_at()
 RETURNS TRIGGER AS $$

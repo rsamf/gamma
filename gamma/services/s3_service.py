@@ -1,7 +1,7 @@
 import boto3
 from botocore.config import Config
 
-from backend.config import get_settings
+from gamma.config import get_settings
 
 
 class S3Service:

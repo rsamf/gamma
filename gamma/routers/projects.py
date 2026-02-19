@@ -2,8 +2,10 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
-from backend.db import get_supabase_admin_client
-from backend.models import Project, ProjectCreate, ProjectUpdate
+from gamma.config import get_settings
+from gamma.db import get_supabase_admin_client
+from gamma.models import Project, ProjectCreate, ProjectCreateRequest, ProjectUpdate
+from gamma.services.github_service import GitHubService
 
 router = APIRouter(prefix="/projects", tags=["projects"])
 
@@ -36,12 +38,40 @@ async def get_project(project_id: UUID):
 
 
 @router.post("", response_model=Project, status_code=201)
-async def create_project(project: ProjectCreate, owner_id: UUID):
+async def create_project(project: ProjectCreateRequest, owner_id: UUID):
     """Create a new project by connecting a GitHub repo."""
+    owner, repo = project.github_repo_full_name.split("/", 1)
+
+    github = GitHubService()
+    installation_id = await github.get_repo_installation_id(owner, repo)
+
+    settings = get_settings()
+    full_project = ProjectCreate(
+        name=repo,
+        github_repo_full_name=project.github_repo_full_name,
+        github_installation_id=installation_id,
+        s3_bucket=settings.s3_default_bucket,
+    )
+
     client = get_supabase_admin_client()
+
+    # Ensure a profile row exists for this user (safety net if the DB trigger
+    # hadn't been applied yet when the user first signed up).
+    user_resp = client.auth.admin.get_user_by_id(str(owner_id))
+    if user_resp and user_resp.user:
+        meta = user_resp.user.user_metadata or {}
+        client.table("profiles").upsert(
+            {
+                "id": str(owner_id),
+                "github_username": meta.get("user_name") or "",
+                "avatar_url": meta.get("avatar_url"),
+            },
+            on_conflict="id",
+        ).execute()
+
     result = (
         client.table("projects")
-        .insert({"owner_id": str(owner_id), **project.model_dump()})
+        .insert({"owner_id": str(owner_id), **full_project.model_dump()})
         .execute()
     )
     return result.data[0]

@@ -2,9 +2,9 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
-from backend.db import get_supabase_admin_client
-from backend.models import TrainingJob, TrainingJobCreate, TrainingJobUpdate
-from backend.services.sagemaker_service import SageMakerService
+from gamma.db import get_supabase_admin_client
+from gamma.models import TrainingJob, TrainingJobCreate, TrainingJobUpdate
+from gamma.services.sagemaker_service import SageMakerService
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 

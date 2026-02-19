@@ -19,12 +19,14 @@ export interface Project {
 }
 
 export interface ProjectCreate {
-  name: string;
   github_repo_full_name: string;
-  github_installation_id: number;
-  s3_bucket: string;
-  s3_prefix?: string;
-  mlflow_experiment_name?: string;
+}
+
+export interface GithubRepo {
+  full_name: string;
+  name: string;
+  private: boolean;
+  installation_id: number;
 }
 
 export type JobStatus = "pending" | "running" | "completed" | "failed";

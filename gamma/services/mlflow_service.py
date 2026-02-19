@@ -1,6 +1,6 @@
 import httpx
 
-from backend.config import get_settings
+from gamma.config import get_settings
 
 
 class MLflowService:

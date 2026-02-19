@@ -2,8 +2,8 @@ from uuid import UUID
 
 from fastapi import APIRouter, HTTPException
 
-from backend.db import get_supabase_admin_client
-from backend.services.s3_service import S3Service
+from gamma.db import get_supabase_admin_client
+from gamma.services.s3_service import S3Service
 
 router = APIRouter(prefix="/artifacts", tags=["artifacts"])
 

@@ -3,6 +3,10 @@ from datetime import datetime
 from uuid import UUID
 
 
+class ProjectCreateRequest(BaseModel):
+    github_repo_full_name: str
+
+
 class ProjectCreate(BaseModel):
     name: str
     github_repo_full_name: str

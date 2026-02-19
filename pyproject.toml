@@ -1,0 +1,29 @@
+[project]
+name = "gamma"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.34.0",
+    "pydantic>=2.10.4",
+    "pydantic-settings>=2.7.1",
+    "supabase>=2.27.1",
+    "httpx==0.28.1",
+    "boto3==1.36.4",
+    "anthropic==0.42.0",
+    "PyJWT[crypto]==2.10.1",
+    "python-multipart==0.0.20",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+markers = ["integration: marks tests that require live external services"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["gamma"]

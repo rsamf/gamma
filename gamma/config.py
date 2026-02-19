@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     # Supabase
     supabase_url: str = ""
     supabase_key: str = ""  # anon/public key
-    supabase_service_role_key: str = ""  # service role key for admin ops
+    supabase_secret_key: str = ""  # secret key for admin ops (sb_secret_...)
 
     # GitHub App
     github_app_id: str = ""

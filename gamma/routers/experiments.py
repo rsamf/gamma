@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException
 
-from backend.services.mlflow_service import MLflowService
+from gamma.services.mlflow_service import MLflowService
 
 router = APIRouter(prefix="/experiments", tags=["experiments"])
 

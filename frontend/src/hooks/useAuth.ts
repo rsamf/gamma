@@ -31,5 +31,5 @@ export function useAuth() {
 
   const signOut = () => supabase.auth.signOut();
 
-  return { session, user, loading, signInWithGitHub, signOut };
+  return { session, user, loading, signInWithGitHub, signOut, providerToken: session?.provider_token ?? null };
 }

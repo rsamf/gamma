@@ -1,6 +1,7 @@
 import type {
   Project,
   ProjectCreate,
+  GithubRepo,
   TrainingJob,
   CommitSummary,
   AgentConversation,
@@ -23,6 +24,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   }
   return res.json();
 }
+
+// GitHub
+export const listGithubRepos = (ownerId: string) =>
+  request<GithubRepo[]>(`/github/repos?owner_id=${ownerId}`);
 
 // Projects
 export const listProjects = (ownerId?: string) =>

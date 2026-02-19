@@ -1,6 +1,6 @@
 from supabase import create_client, Client
 from functools import lru_cache
-from backend.config import get_settings
+from gamma.config import get_settings
 
 
 @lru_cache()
@@ -12,6 +12,6 @@ def get_supabase_client() -> Client:
 
 @lru_cache()
 def get_supabase_admin_client() -> Client:
-    """Get Supabase client using the service role key (bypasses RLS)."""
+    """Get Supabase client using the secret key (bypasses RLS)."""
     settings = get_settings()
-    return create_client(settings.supabase_url, settings.supabase_service_role_key)
+    return create_client(settings.supabase_url, settings.supabase_secret_key)

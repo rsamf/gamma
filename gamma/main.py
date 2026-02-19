@@ -2,8 +2,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from backend.config import get_settings
-from backend.routers import agent, artifacts, experiments, jobs, projects, webhooks
+from gamma.config import get_settings
+from gamma.routers import agent, artifacts, experiments, github, jobs, projects, webhooks
 
 settings = get_settings()
 
@@ -28,6 +28,7 @@ app.include_router(jobs.router, prefix="/api")
 app.include_router(experiments.router, prefix="/api")
 app.include_router(artifacts.router, prefix="/api")
 app.include_router(agent.router, prefix="/api")
+app.include_router(github.router, prefix="/api")
 app.include_router(webhooks.router, prefix="/api")
 
 

@@ -1,8 +1,8 @@
 import anthropic
 
-from backend.config import get_settings
-from backend.services.github_service import GitHubService
-from backend.services.mlflow_service import MLflowService
+from gamma.config import get_settings
+from gamma.services.github_service import GitHubService
+from gamma.services.mlflow_service import MLflowService
 
 
 class AgentService:
